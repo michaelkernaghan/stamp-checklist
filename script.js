@@ -5,7 +5,12 @@ function loadCountries(letter) {
     const countryList = document.getElementById('country-list');
 
     fetch(`data/${letter}_countries.json`)
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Could not load data for ${letter} countries. Response status: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(data => {
             Object.keys(data).forEach(country => {
                 const countryLink = document.createElement('a');
@@ -29,8 +34,16 @@ function loadCountryData(country, letter) {
 
     countryTitle.textContent = `${country} Stamp Checklist`;
 
-    fetch(`data/${letter}_countries.json`)
-        .then(response => response.json())
+    const fetchUrl = `data/${letter}_countries.json`;
+    console.log(`Fetching data from: ${fetchUrl}`);
+
+    fetch(fetchUrl)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Could not load data for ${country}. Response status: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(data => {
             const countryData = data[country];
             if (countryData) {
@@ -100,5 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (country && letter) {
         loadCountryData(country, letter);
+    } else {
+        console.error("Country or letter parameter missing in URL.");
     }
 });
